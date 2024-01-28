@@ -106,7 +106,10 @@ export default function Home() {
   return (
     <NextUIProvider className="w-full h-full">
       <main className="w-full h-full flex flex-col justify-center items-center gap-12">
+        <div className='text-center'>
         <h1 className='text-3xl'>Simple Color Converter</h1>
+        <p className='opacity-50'>v1.0</p>
+        </div>
         <form className="w-full max-w-xs flex flex-col gap-2">
           <Input
             onChange={handleChange}
