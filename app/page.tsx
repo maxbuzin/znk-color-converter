@@ -32,20 +32,24 @@ export default function Home() {
 
   const convertColor = (formattedColor: string) => {
     if (formattedColor.startsWith('#')) {
+      const rgb = hexToRgb(formattedColor) || '';
       setHexColor(formattedColor);
-      setRgbColor(hexToRgb(formattedColor));
-      setHslColor(rgbToHsl(hexToRgb(formattedColor)));
-    } else if (formattedColor.startsWith('rgb')) {
-      setRgbColor(formattedColor);
-      setHexColor(rgbToHex(formattedColor));
-      setHslColor(rgbToHsl(formattedColor));
-    } else if (formattedColor.startsWith('hsl')) {
-      setHslColor(formattedColor);
-      const rgb = hslToRgb(formattedColor);
       setRgbColor(rgb);
-      setHexColor(rgbToHex(rgb));
+      setHslColor(rgbToHsl(rgb) || '');
+    } else if (formattedColor.startsWith('rgb')) {
+      const hex = rgbToHex(formattedColor) || '';
+      const hsl = rgbToHsl(formattedColor) || '';
+      setRgbColor(formattedColor);
+      setHexColor(hex);
+      setHslColor(hsl);
+    } else if (formattedColor.startsWith('hsl')) {
+      const rgb = hslToRgb(formattedColor) || '';
+      setHslColor(formattedColor);
+      setRgbColor(rgb);
+      setHexColor(rgbToHex(rgb) || '');
     }
   };
+  
 
   const hexToRgb = (hex: string) => {
     let r = 0, g = 0, b = 0;
@@ -64,20 +68,27 @@ export default function Home() {
   };
   
   const rgbToHex = (rgb: string) => {
-    const [r, g, b] = rgb.match(/\d+/g).map(Number);
+    const match = rgb.match(/\d+/g);
+    if (!match) {
+      return ''; // Handle the case where match might be null
+    }
+    const [r, g, b] = match.map(Number);
     return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
   };
   
   const rgbToHsl = (rgb: string) => {
-    let [r, g, b] = rgb.match(/\d+/g).map(Number);
+    const match = rgb.match(/\d+/g);
+    if (!match) {
+      return ''; // Handle the case where match might be null
+    }
+    let [r, g, b] = match.map(Number);
     r /= 255, g /= 255, b /= 255;
   
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
+    let h = 0; // Initialize h to 0
+    let s, l = (max + min) / 2;
   
-    if (max === min) {
-      h = s = 0; // achromatic
-    } else {
+    if (max !== min) {
       const d = max - min;
       s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
       switch (max) {
@@ -86,20 +97,19 @@ export default function Home() {
         case b: h = (r - g) / d + 4; break;
       }
       h /= 6;
+    } else {
+      s = 0; // achromatic
     }
   
     return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
   };
   
   const hslToRgb = (hsl: string) => {
-    const [h, s, l] = hsl.match(/\d+/g).map(Number);
-    const a = s * Math.min(l, 1 - l) / 100;
-    const f = (n: number) => {
-      const k = (n + h / 30) % 12;
-      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color);
-    };
-    return `rgb(${f(0)}, ${f(8)}, ${f(4)})`;
+    const match = hsl.match(/\d+/g);
+    if (!match) {
+      return ''; // Handle the case where match might be null
+    }
+    const [h, s, l] = match.map(Number);
   };
 
   // Application
@@ -108,7 +118,7 @@ export default function Home() {
       <main className="w-full h-full flex flex-col justify-center items-center gap-12">
         <div className='text-center'>
         <h1 className='text-3xl'>Simple Color Converter</h1>
-        <p className='opacity-50'>v1.0</p>
+        <p className='opacity-50'>v 1.0</p>
         </div>
         <form className="w-full max-w-xs flex flex-col gap-2">
           <Input
@@ -117,7 +127,6 @@ export default function Home() {
             className="flex"
           />
         </form>
-        {/* <span className='text-xl'>{formattedColor}</span> */}
         <span className='w-full max-w-xs flex flex-col items-center gap-4'>
         <p>{hexColor}</p>
         <p>{rgbColor}</p>
