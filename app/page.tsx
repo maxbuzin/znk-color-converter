@@ -116,6 +116,7 @@ export default function Home() {
   return (
     <NextUIProvider className="w-full h-full">
       <main className="w-full h-full flex flex-col justify-center items-center gap-12">
+        <section className='flex flex-col flex-1 justify-center items-center'>
         <div className='text-center'>
         <h1 className='text-3xl'>Simple Color Converter</h1>
         <p className='opacity-50'>v 1.0</p>
@@ -136,7 +137,10 @@ export default function Home() {
           style={{ backgroundColor: formattedColor }}
           className="w-full max-w-xs h-40 border-black rounded-xl flex justify-center items-center text-xl font-semibold">
         </span>
-        <p>Made by <a href='https://maxbuzin.com' target='_blank' className='underline'>Max Buzin</a> & <a href='https://chat.openai.com/' target='_blank' className='underline'>GPT-4</a></p>
+        </section>
+      <footer className='mb-5'>
+      <p>Made by <a href='https://maxbuzin.com' target='_blank' className='underline'>Max Buzin</a> & <a href='https://chat.openai.com/' target='_blank' className='underline'>GPT-4</a></p>
+      </footer>
       </main>
     </NextUIProvider>
   );

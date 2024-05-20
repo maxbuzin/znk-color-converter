@@ -4,5 +4,6 @@
 
 @layer base {
   * { @apply box-border border-red-500 }
-  body { @apply w-full h-screen bg-gray-600 bg-gradient-to-b from-black/20 text-gray-200 }
+  body { @apply w-full h-screen bg-zinc-800 text-zinc-100 }
+  input { @apply rounded }
 }
