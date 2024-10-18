@@ -10,6 +10,7 @@ export default function Home() {
   const [hexColor, setHexColor] = useState('');
   const [rgbColor, setRgbColor] = useState('');
   const [hslColor, setHslColor] = useState('');
+  const [hslRaw, setHslRaw] = useState('');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim();
@@ -41,11 +42,11 @@ export default function Home() {
       return `hsl(${hslMatch[1]})`;
     }
 
-    // HSL sem parênteses e vírgulas (estilo ShadCN)
-    const hslNoParenthesesRegex = /^hsl\s+(\d+(\.\d+)?)(?:deg)?\s+(\d+(\.\d+)?%?)\s+(\d+(\.\d+)?%?)$/i;
-    const hslNoParenthesesMatch = color.match(hslNoParenthesesRegex);
-    if (hslNoParenthesesMatch) {
-      return `hsl(${hslNoParenthesesMatch[1]}, ${hslNoParenthesesMatch[3]}, ${hslNoParenthesesMatch[5]})`;
+    // HSL sem prefixo 'hsl' (estilo ShadCN)
+    const hslValuesRegex = /^(\d+(\.\d+)?)(?:deg)?\s*,\s*(\d+(\.\d+)?%?)\s*,\s*(\d+(\.\d+)?%?)$/i;
+    const hslValuesMatch = color.match(hslValuesRegex);
+    if (hslValuesMatch) {
+      return `hsl(${hslValuesMatch[1]}, ${hslValuesMatch[3]}, ${hslValuesMatch[5]})`;
     }
 
     return "Invalid Color";
@@ -57,23 +58,31 @@ export default function Home() {
       const hsl = rgbToHsl(rgb);
       setHexColor(formattedColor);
       setRgbColor(rgb);
-      setHslColor(hsl);
+      setHslColor(hsl.hslString);
+      setHslRaw(hsl.hslRaw);
     } else if (formattedColor.startsWith('rgb')) {
       const hex = rgbToHex(formattedColor);
       const hsl = rgbToHsl(formattedColor);
       setRgbColor(formattedColor);
       setHexColor(hex);
-      setHslColor(hsl);
+      setHslColor(hsl.hslString);
+      setHslRaw(hsl.hslRaw);
     } else if (formattedColor.startsWith('hsl')) {
       const rgb = hslToRgb(formattedColor);
       const hex = rgbToHex(rgb);
       setHslColor(formattedColor);
       setRgbColor(rgb);
       setHexColor(hex);
+      // Extrair os valores brutos do HSL
+      const hslRawMatch = formattedColor.match(/hsl\(\s*(.+)\s*\)/i);
+      if (hslRawMatch && hslRawMatch[1]) {
+        setHslRaw(hslRawMatch[1]);
+      }
     } else {
       setHexColor('');
       setRgbColor('');
       setHslColor('');
+      setHslRaw('');
     }
   };
 
@@ -105,7 +114,7 @@ export default function Home() {
   const rgbToHsl = (rgb: string) => {
     const match = rgb.match(/\d+(\.\d+)?/g);
     if (!match) {
-      return '';
+      return null;
     }
     let [r, g, b] = match.map(num => parseFloat(num));
     r /= 255;
@@ -134,7 +143,14 @@ export default function Home() {
       h /= 6;
     }
 
-    return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+    const hDeg = Math.round(h * 360);
+    const sPerc = Math.round(s * 100);
+    const lPerc = Math.round(l * 100);
+
+    return {
+      hslString: `hsl(${hDeg}, ${sPerc}%, ${lPerc}%)`,
+      hslRaw: `${hDeg}, ${sPerc}%, ${lPerc}%`
+    };
   };
 
   const hslToRgb = (hsl: string) => {
@@ -179,7 +195,7 @@ export default function Home() {
         <section className='flex flex-col flex-1 justify-center items-center'>
           <div className='text-center'>
             <h1 className='text-3xl'>Conversor de Cores Simples</h1>
-            <p className='opacity-50 tracking-wider'>v1.1</p>
+            <p className='opacity-50'>v 1.2</p>
           </div>
           <form className="w-full max-w-xs flex flex-col gap-2">
             <Input
@@ -188,13 +204,14 @@ export default function Home() {
               className="flex"
             />
           </form>
-          <span className='w-full max-w-xs flex flex-col items-center gap-4'>
+          <span className='w-fit max-w-xs flex flex-col mx-autl gap-2 my-5'>
             {formattedColor === "Invalid Color" && (
               <p className="text-red-500">Por favor, insira uma cor válida nos formatos HEX, RGB ou HSL.</p>
             )}
-            <p>{hexColor}</p>
-            <p>{rgbColor}</p>
-            <p>{hslColor}</p>
+            {hexColor && <p>{hexColor}</p>}
+            {rgbColor && <p>{rgbColor}</p>}
+            {hslColor && <p>{hslColor}</p>}
+            {hslRaw && <p>{hslRaw}</p>}
           </span>
           <span
             style={{ backgroundColor: formattedColor !== "Invalid Color" ? formattedColor : 'transparent' }}
