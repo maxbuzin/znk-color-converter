@@ -77,6 +77,8 @@ export default function Home() {
       const hslRawMatch = formattedColor.match(/hsl\(\s*(.+)\s*\)/i);
       if (hslRawMatch && hslRawMatch[1]) {
         setHslRaw(hslRawMatch[1]);
+      } else {
+        setHslRaw('');
       }
     } else {
       setHexColor('');
@@ -114,7 +116,11 @@ export default function Home() {
   const rgbToHsl = (rgb: string) => {
     const match = rgb.match(/\d+(\.\d+)?/g);
     if (!match) {
-      return null;
+      // Retorna valores padrão em caso de erro
+      return {
+        hslString: '',
+        hslRaw: ''
+      };
     }
     let [r, g, b] = match.map(num => parseFloat(num));
     r /= 255;
@@ -193,7 +199,7 @@ export default function Home() {
     <NextUIProvider className="w-full h-full">
       <main className="w-full h-full flex flex-col justify-center items-center gap-12">
         <section className='flex flex-col flex-1 justify-center items-center'>
-          <div className='text-center'>
+          <div className='text-center mb-5'>
             <h1 className='text-3xl'>Conversor de Cores Simples</h1>
             <p className='opacity-50'>v 1.2</p>
           </div>
@@ -204,7 +210,7 @@ export default function Home() {
               className="flex"
             />
           </form>
-          <span className='w-fit max-w-xs flex flex-col mx-autl gap-2 my-5'>
+          <span className='w-fit max-w-xs flex flex-col mx-auto my-5 gap-4'>
             {formattedColor === "Invalid Color" && (
               <p className="text-red-500">Por favor, insira uma cor válida nos formatos HEX, RGB ou HSL.</p>
             )}
